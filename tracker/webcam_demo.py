@@ -76,8 +76,17 @@ def show_webcam(mirror=False):
         video_writer = cv2.VideoWriter('outputs/%02d_%02d_%02d_%02d_%02d.avi' %
                 (tt.tm_mon, tt.tm_mday, tt.tm_hour, tt.tm_min, tt.tm_sec),
                 cv2.VideoWriter_fourcc(*'DIVX'), 10, (OUTPUT_WIDTH, OUTPUT_HEIGHT))
+
+    prev_frame_time = 0
+    new_frame_time = 0
+
     while True:
         _, img = cam.read()
+
+        new_frame_time = time.time()
+        font = cv2.FONT_HERSHEY_SIMPLEX
+
+        # cv2.moveWindow('Webcam', int((1920 - OUTPUT_WIDTH) / 2), int((1080 - OUTPUT_HEIGHT) / 2))
         if mirror:
             img = cv2.flip(img, 1)
         # origImg = img.copy()
@@ -89,17 +98,17 @@ def show_webcam(mirror=False):
                         colors[i], PADDING)
                 cv2.putText(img, 'Object %02d' % i,
                             (int(boxToDraw[i][0]), int(boxToDraw[i][1]-5)), 
-                            cv2.FONT_HERSHEY_SIMPLEX, 0.5, colors[i])
+                            font, 0.5, colors[i])
             if RECORD:
                 cv2.circle(img, (int(drawnBox[2]), int(drawnBox[3])), 10, [255,0,0], 4)
         elif mouseupdown:
             for i in range(cnt_obj):
                 if initialize[i]:
-                    outputBoxToDraw = tracker.track(i, img[:,:,::-1], boxToDraw[i])
+                    outputBoxToDraw = tracker.track(i, img[:, :, ::-1], boxToDraw[i])
                     initialize[i] = False
                 else:
                     # begin_time = time.time()
-                    outputBoxToDraw = tracker.track(i, img[:,:,::-1])
+                    outputBoxToDraw = tracker.track(i, img[:, :, ::-1])
                     boxToDraw[i] = outputBoxToDraw
                     # print('fps: ', time.time()-begin_time)
                 cv2.rectangle(img,
@@ -108,7 +117,16 @@ def show_webcam(mirror=False):
                         colors[i], PADDING)
                 cv2.putText(img, 'Object %02d' % i,
                             (int(boxToDraw[i][0]), int(boxToDraw[i][1]-5)), 
-                            cv2.FONT_HERSHEY_SIMPLEX, 0.5, colors[i])
+                            font, 0.5, colors[i])
+
+        fps = 1 / (new_frame_time - prev_frame_time)
+        print(f"New frame time - Prev frame time: {new_frame_time - prev_frame_time}")
+        prev_frame_time = new_frame_time
+
+        fps = int(fps)
+        fps = str(fps)
+        cv2.putText(img, fps, (7, 70), font, 2, (0, 255, 0), 3, cv2.LINE_AA)
+
         cv2.imshow('Webcam', img)
         if RECORD:
             # if outputBoxToDraw is not None:
@@ -123,9 +141,11 @@ def show_webcam(mirror=False):
         if keyPressed == 27 or keyPressed == 1048603:
             break  # esc to quit
         frameNum += 1
+
     cv2.destroyAllWindows()
     if RECORD:
         video_writer.release()
+
 
 # Main function
 if __name__ == '__main__':
@@ -134,7 +154,6 @@ if __name__ == '__main__':
     parser.add_argument('-r', '--record', action='store_true', default=False)
     args = parser.parse_args()
     RECORD = args.record
-
 
     tracker = re3_tracker.Re3Tracker()
 
