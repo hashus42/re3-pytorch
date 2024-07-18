@@ -15,6 +15,7 @@ from utils.im_util import get_image_size
 
 DEBUG = False
 
+
 def main(label_type):
     folder = ['/ILSVRC2015_VID_train_0001/*/', '/ILSVRC2015_VID_train_0002/*/', '/ILSVRC2015_VID_train_0003/*/']
     for fol in folder:
@@ -117,12 +118,14 @@ def main(label_type):
                 imNum += 1
 
         bboxes = np.array(bboxes)
-        # Reorder by video_id, then track_id, then video image number so all labels for a single track are next to each other.
+        # Reorder by video_id, then track_id, then video image number
+        # so all labels for a single track are next to each other.
         # This only matters if a single image could have multiple tracks.
-        order = np.lexsort((bboxes[:,6], bboxes[:,5], bboxes[:,4]))
-        bboxes = bboxes[order,:]
+        order = np.lexsort((bboxes[:6], bboxes[:5], bboxes[:4]))
+        bboxes = bboxes[order]
         if not DEBUG:
             np.save('labels/' + label_type + '/labels' + str(fol[-4]) + '.npy', bboxes)
+
 
 if __name__ == '__main__':
     main('train')

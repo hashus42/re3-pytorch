@@ -101,11 +101,12 @@ def main(label_type):
     if not DEBUG:
         np.save('labels/' + label_type + '/labels.npy', bboxes)
 
+
 if __name__ == '__main__':
     main('train')
     # test
     label = np.load('./labels/train/labels.npy')
-    print(label[:100, :])
+    print(label[:100:])
     print('total len = ', label.shape[0])
 
 
