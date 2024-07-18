@@ -84,14 +84,14 @@ class Re3Net(nn.Module):
         
         # Conv 1 skipped layer
         x1_skip = self.conv1_skip(x1)
-        x1_skip_flat = x1_skip.view(x1_skip.shape[0], 16*27*27)
+        x1_skip_flat = x1_skip.reshape(x1_skip.shape[0], 16*27*27)
         
         # Conv 2
         x2 = self.conv2(x1)
         
         # Conv 2 skipped layer
         x2_skip = self.conv2_skip(x2)
-        x2_skip_flat = x2_skip.view(x2_skip.shape[0], 32*13*13)
+        x2_skip_flat = x2_skip.reshape(x2_skip.shape[0], 32*13*13)
         
         # Conv 3
         x3 = self.conv3(x2)
@@ -102,16 +102,16 @@ class Re3Net(nn.Module):
         # Conv 5
         x5_1 = self.conv5_1(x4)
         x5_2 = self.conv5_2(x5_1)        
-        x5_flat = x5_2.view(x5_2.shape[0], 256*6*6)
+        x5_flat = x5_2.reshape(x5_2.shape[0], 256*6*6)
 
         # Conv 5 skipped layer
         x5_skip = self.conv5_skip(x5_1)
-        x5_skip_flat = x5_skip.view(x5_skip.shape[0], 64*13*13)
+        x5_skip_flat = x5_skip.reshape(x5_skip.shape[0], 64*13*13)
         
         # Concat all layers
         x_cat = torch.cat((x1_skip_flat, x2_skip_flat, x5_skip_flat, x5_flat), 1)
-        x_reshape = x_cat.view(batch_size, num_unrolls, 2, x_cat.shape[-1])
-        x_reshape = x_reshape.view(batch_size, num_unrolls, 2 * x_cat.shape[-1])
+        x_reshape = x_cat.reshape(batch_size, num_unrolls, 2, x_cat.shape[-1])
+        x_reshape = x_reshape.reshape(batch_size, num_unrolls, 2 * x_cat.shape[-1])
         
         return x_reshape
 
