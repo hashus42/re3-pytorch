@@ -47,8 +47,8 @@ class Re3Tracker(object):
         cropped_input0, past_bbox_padded = im_util.get_cropped_input(prev_image, past_bbox, CROP_PAD, CROP_SIZE)
         cropped_input1, _ = im_util.get_cropped_input(image, past_bbox, CROP_PAD, CROP_SIZE)
 
-        network_input = np.stack((cropped_input0.transpose(2,0,1),cropped_input1.transpose(2,0,1)))
-        network_input = torch.tensor(network_input, dtype = torch.float)    
+        network_input = np.stack((cropped_input0.transpose(2, 0, 1), cropped_input1.transpose(2, 0, 1)))
+        network_input = torch.tensor(network_input, dtype=torch.float)
         
         with torch.no_grad():
             network_input = network_input.to(self.device)

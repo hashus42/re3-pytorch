@@ -17,6 +17,7 @@ def to_xyxy(input):
     bbox = [np.min(x_coord), np.min(y_coord), np.max(x_coord), np.max(y_coord)]
     return np.array(bbox)
 
+
 if __name__ == "__main__":
 
     VIDEO_PATH = [SEQ_PATH + f + '/' for f in os.listdir(SEQ_PATH)]

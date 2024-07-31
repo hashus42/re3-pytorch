@@ -82,25 +82,30 @@ def show_webcam(mirror=False):
 
     while True:
         _, img = cam.read()
+        img_shown = img.copy()
 
         new_frame_time = time.time()
         font = cv2.FONT_HERSHEY_SIMPLEX
 
+        img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        img = cv2.threshold(img, 0, 255, cv2.THRESH_BINARY)[1]
+
         # cv2.moveWindow('Webcam', int((1920 - OUTPUT_WIDTH) / 2), int((1080 - OUTPUT_HEIGHT) / 2))
         if mirror:
             img = cv2.flip(img, 1)
+            img_shown = cv2.flip(img_shown, 1)
         # origImg = img.copy()
         if mousedown:
             for i in range(cnt_obj+1):
-                cv2.rectangle(img,
+                cv2.rectangle(img_shown,
                         (int(boxToDraw[i][0]), int(boxToDraw[i][1])),
                         (int(boxToDraw[i][2]), int(boxToDraw[i][3])),
                         colors[i], PADDING)
-                cv2.putText(img, 'Object %02d' % i,
-                            (int(boxToDraw[i][0]), int(boxToDraw[i][1]-5)), 
+                cv2.putText(img_shown, 'Object %02d' % i,
+                            (int(boxToDraw[i][0]), int(boxToDraw[i][1]-5)),
                             font, 0.5, colors[i])
             if RECORD:
-                cv2.circle(img, (int(drawnBox[2]), int(drawnBox[3])), 10, [255,0,0], 4)
+                cv2.circle(img_shown, (int(drawnBox[2]), int(drawnBox[3])), 10, [255,0,0], 4)
         elif mouseupdown:
             for i in range(cnt_obj):
                 if initialize[i]:
@@ -111,23 +116,23 @@ def show_webcam(mirror=False):
                     outputBoxToDraw = tracker.track(i, img[:, :, ::-1])
                     boxToDraw[i] = outputBoxToDraw
                     # print('fps: ', time.time()-begin_time)
-                cv2.rectangle(img,
+                cv2.rectangle(img_shown,
                         (int(outputBoxToDraw[0]), int(outputBoxToDraw[1])),
                         (int(outputBoxToDraw[2]), int(outputBoxToDraw[3])),
                         colors[i], PADDING)
-                cv2.putText(img, 'Object %02d' % i,
-                            (int(boxToDraw[i][0]), int(boxToDraw[i][1]-5)), 
+                cv2.putText(img_shown, 'Object %02d' % i,
+                            (int(boxToDraw[i][0]), int(boxToDraw[i][1]-5)),
                             font, 0.5, colors[i])
 
         fps = 1 / (new_frame_time - prev_frame_time)
-        print(f"New frame time - Prev frame time: {new_frame_time - prev_frame_time}")
+        # print(f"New frame time - Prev frame time: {new_frame_time - prev_frame_time}")
         prev_frame_time = new_frame_time
 
         fps = int(fps)
         fps = str(fps)
-        cv2.putText(img, fps, (7, 70), font, 2, (0, 255, 0), 3, cv2.LINE_AA)
+        cv2.putText(img_shown, fps, (7, 70), font, 2, (0, 255, 0), 3, cv2.LINE_AA)
 
-        cv2.imshow('Webcam', img)
+        cv2.imshow('Webcam', img_shown)
         if RECORD:
             # if outputBoxToDraw is not None:
             #     labels.write('%d %.2f %.2f %.2f %.2f\n' %
@@ -135,7 +140,7 @@ def show_webcam(mirror=False):
             #                 outputBoxToDraw[2], outputBoxToDraw[3]))
             # cv2.imwrite('%s%08d.jpg' % (outputDir, frameNum), origImg)
             # print('saving')
-            video_writer.write(img)
+            video_writer.write(img_shown)
 
         keyPressed = cv2.waitKey(1)
         if keyPressed == 27 or keyPressed == 1048603:

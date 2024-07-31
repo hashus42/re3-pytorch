@@ -13,7 +13,7 @@
 
 Download the repository
 ```
-git clone https://github.com/chikuanlin/re3-pytorch.git
+git clone https://github.com/hashus42/re3-pytorch.git
 cd re3-pytorch
 ```
 Download pre-trained model from the following link and unzip it into the repository

@@ -19,13 +19,15 @@ import numpy as np
 #   warped.
 # @return{tuple(patch, outputBox)} the output patch and bounding box
 #   representing its coordinates.
+
+
 def get_cropped_input(inputImage, bbox, padScale, outputSize):
     bbox = np.array(bbox)
     width = float(bbox[2] - bbox[0])
     height = float(bbox[3] - bbox[1])
     imShape = np.array(inputImage.shape)
     if len(imShape) < 3:
-        inputImage = inputImage[:,:,np.newaxis]
+        inputImage = inputImage[:, :, np.newaxis]
     xC = float(bbox[0] + bbox[2]) / 2
     yC = float(bbox[1] + bbox[3]) / 2
     boxOn = np.zeros(4)
@@ -37,18 +39,18 @@ def get_cropped_input(inputImage, bbox, padScale, outputSize):
     boxOn = np.round(boxOn).astype(int)
     boxOnWH = np.array([boxOn[2] - boxOn[0], boxOn[3] - boxOn[1]])
     imagePatch = inputImage[max(boxOn[1], 0):min(boxOn[3], imShape[0]),
-            max(boxOn[0], 0):min(boxOn[2], imShape[1]), :]
-    boundedBox = np.clip(boxOn, 0, imShape[[1,0,1,0]])
+                            max(boxOn[0], 0):min(boxOn[2], imShape[1]), :]
+    boundedBox = np.clip(boxOn, 0, imShape[[1, 0, 1, 0]])
     boundedBoxWH = np.array([boundedBox[2] - boundedBox[0], boundedBox[3] - boundedBox[1]])
 
     if imagePatch.shape[0] == 0 or imagePatch.shape[1] == 0:
         patch = np.zeros((int(outputSize), int(outputSize), 3))
     else:
-        patch = cv2.resize(imagePatch, (
+        patch = cv2.resize(imagePatch, [
             max(1, int(np.round(outputSize * boundedBoxWH[0] / boxOnWH[0]))),
-            max(1, int(np.round(outputSize * boundedBoxWH[1] / boxOnWH[1])))))
+            max(1, int(np.round(outputSize * boundedBoxWH[1] / boxOnWH[1])))])
         if len(patch.shape) < 3:
-            patch = patch[:,:,np.newaxis]
+            patch = patch[:, :, np.newaxis]
         patchShape = np.array(patch.shape)
 
         pad = np.zeros(4, dtype=int)
